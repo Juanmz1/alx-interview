@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-Contains methods that find the possible solutions to the n-queens can
-be placed without them attacking each other(The n-queens problem).
+Solves the N-Queens problem and prints every possible solution.
 """
 import sys
 
@@ -22,14 +21,12 @@ def is_valid(board, row, col):
     if 1 in board[row]:
         return False
 
-    upper_diag = zip(range(row, -1, -1),
-                     range(col, -1, -1))
+    upper_diag = zip(range(row, -1, -1), range(col, -1, -1))
     for i, j in upper_diag:
         if board[i][j] == 1:
             return False
 
-    lower_diag = zip(range(row, len(board), 1),
-                     range(col, -1, -1))
+    lower_diag = zip(range(row, len(board), 1), range(col, -1, -1))
     for i, j in lower_diag:
         if board[i][j] == 1:
             return False
@@ -37,52 +34,30 @@ def is_valid(board, row, col):
     return True
 
 
-def nqueens_helper(board, col):
+def nqueens_helper(board, col, solutions):
     """
     Helper function for nqueens
 
     Args:
         board: 2D array representing the board
         col: column to start from
+        solutions: List to store found solutions
 
     Returns:
-        Boolean: True if a solution is found, False otherwise
+        None
     """
     if col >= len(board):
-        print_board(board, len(board))
+        solutions.append([row, col] for row, col in enumerate(board))
     for i in range(len(board)):
         if is_valid(board, i, col):
             board[i][col] = 1
-            result = nqueens_helper(board, col + 1)
-            if result:
-                return True
+            nqueens_helper(board, col + 1, solutions)
             board[i][col] = 0
-    return False
 
 
-def print_board(board, n):
+def print_solutions(n):
     """
-    Prints positions of the queens
-
-    Args:
-        board: 2D array representing the board
-        n: size of the board
-
-    Returns:
-        None
-    """
-    b = []
-
-    for i in range(n):
-        for j in range(n):
-            if board[i][j] == 1:
-                b.append([i, j])
-    print(b)
-
-
-def nqueens(n):
-    """
-    Finds all possible solutions to the n-queens problem
+    Prints every possible solution to the N-Queens problem.
 
     Args:
         n: size of the board
@@ -90,22 +65,31 @@ def nqueens(n):
     Returns:
         None
     """
-    board = []
-    for i in range(n):
-        row = [0] * n
-        board.append(row)
-    nqueens_helper(board, 0)
+    if not isinstance(n, int):
+        print("N must be a number")
+        sys.exit(1)
+    elif n < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+
+    board = [[0] * n for _ in range(n)]
+    solutions = []
+    nqueens_helper(board, 0, solutions)
+
+    for solution in solutions:
+        print(solution)
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
-        exit(1)
+        sys.exit(1)
+    
     queens = sys.argv[1]
     if not queens.isnumeric():
         print("N must be a number")
-        exit(1)
-    elif int(queens) < 4:
-        print("N must be at least 4")
-        exit(1)
-    nqueens(int(queens))
+        sys.exit(1)
+    else:
+        n = int(queens)
+        print_solutions(n)
+
